@@ -1,6 +1,5 @@
 #' An implementation of a stack
 #' 
-#' @importFrom R6 R6Class
 #' @docType class
 #' @export
 #' @format An \code{\link{R6Class}} generator object
@@ -44,7 +43,6 @@ stack = R6::R6Class(
 #' An implementation of an loop
 #' 
 #' @docType class
-#' @importFrom R6 R6Class
 #' @export
 #' 
 #' @format An \code{\link{R6Class}} generator object
