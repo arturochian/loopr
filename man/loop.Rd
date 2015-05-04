@@ -19,11 +19,15 @@ An implementation of an loop
 \section{Methods}{
 
 \describe{\item{\code{
-  cross(crossData, FUN, ...)}}{
-    Will return \code{FUN(\link{stack}$pop, crossData, ...)}}}
+  begin(item, name = "")}}{
+    Alias for \code{\link{stack}$push}}}
 
 \describe{\item{\code{
-  crossover(restoreData, FUN, ...)}}{
+  end(endData, FUN, ...)}}{
+    Will return \code{FUN(\link{stack}$pop, endData, ...)}}}
+
+\describe{\item{\code{
+  cross(crossData, FUN, ...)}}{
     Will return \code{FUN(crossData, \link{stack}$pop, ...)}}}
 }
 \keyword{data}

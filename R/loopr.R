@@ -1,5 +1,6 @@
 #' An implementation of a stack
 #' 
+#' @importFrom R6 R6Class
 #' @docType class
 #' @export
 #' @format An \code{\link{R6Class}} generator object
@@ -43,6 +44,7 @@ stack = R6::R6Class(
 #' An implementation of an loop
 #' 
 #' @docType class
+#' @importFrom R6 R6Class
 #' @export
 #' 
 #' @format An \code{\link{R6Class}} generator object
@@ -53,24 +55,30 @@ stack = R6::R6Class(
 #' 
 #' @section Methods:
 #' \describe{\item{\code{
-#'   cross(crossData, FUN, ...)}}{
-#'     Will return \code{FUN(\link{stack}$pop, crossData, ...)}}}
+#'   begin(item, name = "")}}{
+#'     Alias for \code{\link{stack}$push}}}
 #' 
 #' \describe{\item{\code{
-#'   crossover(restoreData, FUN, ...)}}{
+#'   end(endData, FUN, ...)}}{
+#'     Will return \code{FUN(\link{stack}$pop, endData, ...)}}}
+#' 
+#' \describe{\item{\code{
+#'   cross(crossData, FUN, ...)}}{
 #'     Will return \code{FUN(crossData, \link{stack}$pop, ...)}}}
 loop = R6::R6Class(
   inherit = stack,
   public = list(
+    begin = function(item, name = "")
+      self$push(item, name),
+    end = function(endData, FUN, ...)
+      FUN(self$pop, endData, ...),
     cross = function(crossData, FUN, ...)
-      FUN(self$pop, crossData, ...),
-    crossover = function(crossData, FUN, ...)
       FUN(crossData, self$pop, ...)))
 
 #' Amend variables with new information
 #' 
 #' Replace all non-NA values in one set of columns with values from another matching set
-#' @importFrom pipeR %>>%
+#' @importFrom magrittr %>%
 #' @export
 #' 
 #' @param data A data frame
@@ -80,27 +88,27 @@ loop = R6::R6Class(
 
 amendColumns = function(data, originalNames, amendNames) {
   dataNames = dplyr::data_frame(originalNames,
-                                amendNames) %>>%
+                                amendNames) %>%
     dplyr::mutate(index = 1:length(originalNames))
   #build calls using ifelse
   calls = plyr::dlply(.data = dataNames,
                       .fun = function(row) lazyeval::lazy(
                         ifelse(is.na(amendNames), 
                                originalNames, 
-                               amendNames)) %>>%
+                               amendNames)) %>%
                         lazyeval::interp(amendNames = as.name(row$amendNames),
                                          originalNames = as.name(row$originalNames)),
-                      .variables = "index") %>>%
+                      .variables = "index") %>%
     setNames(originalNames)
   
-  data %>>% 
-    dplyr::mutate_(.dots = calls) %>>%
+  data %>% 
+    dplyr::mutate_(.dots = calls) %>%
     dplyr::select_(.dots = paste0("-", amendNames))}
 
 #' Fill variables with new information
 #' 
 #' Replace all NA values in one set of columns with values from another matching set
-#' @importFrom pipeR %>>%
+#' @importFrom magrittr %>%
 #' @export
 #' 
 #' @param data A data frame
@@ -109,7 +117,7 @@ amendColumns = function(data, originalNames, amendNames) {
 #' @return A \code{\link{tbl_df}}
 fillColumns = function(data, originalNames, fillNames) {
   dataNames = dplyr::data_frame(originalNames,
-                                fillNames) %>>%
+                                fillNames) %>%
     dplyr::mutate(index = 1:length(originalNames))
   
   #build calls using ifelse
@@ -119,14 +127,14 @@ fillColumns = function(data, originalNames, fillNames) {
                   lazyeval::lazy(
                     ifelse(is.na(originalNames), 
                            fillNames, 
-                           originalNames)) %>>%
+                           originalNames)) %>%
                   lazyeval::interp(fillNames = as.name(row$fillNames),
                                    originalNames = as.name(row$originalNames)),
-                .variables = "index") %>>%
+                .variables = "index") %>%
     setNames(originalNames)
   
-  data %>>% 
-    dplyr::mutate_(.dots = calls) %>>%
+  data %>% 
+    dplyr::mutate_(.dots = calls) %>%
     dplyr::select_(.dots = paste0("-", fillNames))}
 
 #' Amend a dataframe with new information
@@ -134,7 +142,7 @@ fillColumns = function(data, originalNames, fillNames) {
 #' \code{\link{full_join}} two dataframes. If there are matching columns, 
 #' amend each \code{data} column with the corresponding \code{amendData} column using \code{\link{amendColumns}}.
 #' 
-#' @importFrom pipeR %>>%
+#' @importFrom magrittr %>%
 #' @export
 #' 
 #' @param data A data frame
@@ -146,15 +154,15 @@ amend = function(data, amendData, by = NULL, suffix = "toFix") {
   
   #default by variables to groups
   if (is.null(by)) by = 
-    data %>>% 
-    dplyr::groups() %>>% 
-    lapply(deparse) %>>% 
-    unlist %>>% 
+    data %>% 
+    dplyr::groups() %>% 
+    lapply(deparse) %>% 
+    unlist %>% 
     as.vector
   if (is.null(by)) stop("Defaulted to merging by data grouping variables. However, no grouping variables found")
   
   #figure out which columns need to be merged.
-  commonNames = intersect(names(data), names(amendData)) %>>% 
+  commonNames = intersect(names(data), names(amendData)) %>% 
     setdiff(by)
   if (length(commonNames) != 0) message("Amending columns: ", paste(commonNames, collapse = ", "))
   
@@ -165,16 +173,16 @@ amend = function(data, amendData, by = NULL, suffix = "toFix") {
     toFix = paste0(commonNames, suffix = suffix)
     if (sum(toFix %in% names(amendData)) > 0) stop ("suffix conflict. Please choose another suffix.")
     
-    amendData %>>%
-      dplyr::rename_(.dots = as.list(commonNames) %>>% setNames(toFix)) %>>%
-      dplyr::full_join(data, by) %>>% 
-      amendColumns(commonNames, toFix) %>>%
+    amendData %>%
+      dplyr::rename_(.dots = as.list(commonNames) %>% setNames(toFix)) %>%
+      dplyr::full_join(data, by) %>% 
+      amendColumns(commonNames, toFix) %>%
       dplyr::arrange_(.dots = by)}}
 
 #' Insert new information into a dataframe.
 #' 
 #' \code{\link{anti_join}} data with insertData, then \code{\link{bind_cols}} of insertData, then arrange by \code{by} variables.
-#' @importFrom pipeR %>>%
+#' @importFrom magrittr %>%
 #' @export
 #' 
 #' @param data A data frame
@@ -182,7 +190,7 @@ amend = function(data, amendData, by = NULL, suffix = "toFix") {
 #' @param by A quoted vector of column names to join by.
 #' @return An inserted \code{\link{tbl_df}}
 insert = function(data, insertData, by)
-  data %>>%
-  dplyr::anti_join(insertData, by = by) %>>%
-  dplyr::bind_rows(insertData) %>>%
+  data %>%
+  dplyr::anti_join(insertData, by = by) %>%
+  dplyr::bind_rows(insertData) %>%
   dplyr::arrange_(.dots = by)

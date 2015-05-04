@@ -12,7 +12,7 @@ This methodology allows programmers to focus on only one aspect of data, and rei
 \tabular{ll}{
 Package: \tab loopr\cr
 Type: \tab Package\cr
-Version: \tab 1.0\cr
+Version: \tab 1.0.0\cr
 Date: \tab 2015-04-04\cr
 License: \tab CC0\cr
 }
