@@ -1,6 +1,6 @@
 Package: loopr
 Type: Package
-Title: Uses an archive to amend previous stages of a pipe using current output
+Title: Uses an Archive to Amend Previous Stages of a Pipe using Current Output
 Version: 1.0.0
 Date: 2015-04-04
 Author: Brandon Taylor
