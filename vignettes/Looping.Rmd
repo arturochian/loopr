@@ -159,7 +159,7 @@ A warning: `amend` internally uses the suffix `"toFix"`. If this suffix is alrea
 `amend` is simply `dplyr::full_join` followed by `amendColumns` to merge non-key columns with matching names. In this case,   `group` from `amendData` overwrites `group` from `example`. How does `amendColumns` work?
 
 ###amendColumns
-`amendColumns` updates an old set of columns with all non-`NA` values from a matching a new set of columns.
+`amendColumns` updates an old set of columns with all non-`NA` values from a matching new set of columns.
 
 ```{r}
 oldColumn = c(0, 0)
