@@ -1,6 +1,7 @@
 #' An implementation of a stack
 #' 
 #' @docType class
+#' @importFrom R6 R6Class
 #' @export
 #' @format An \code{\link{R6Class}} generator object
 #' 
@@ -22,7 +23,7 @@
 #' \describe{
 #'   \item{\code{pop}}{This will return, but not remove, the last (most recent) item from the \code{stack}}}
 
-stack = R6::R6Class(
+stack = R6Class(
   "stack",
   public = list(
     stack = list("bottom" = NULL),
@@ -43,6 +44,7 @@ stack = R6::R6Class(
 #' An implementation of an loop
 #' 
 #' @docType class
+#' @importFrom R6 R6Class
 #' @export
 #' 
 #' @format An \code{\link{R6Class}} generator object
@@ -63,7 +65,7 @@ stack = R6::R6Class(
 #' \describe{\item{\code{
 #'   cross(crossData, FUN, ...)}}{
 #'     Will return \code{FUN(crossData, \link{stack}$pop, ...)}}}
-loop = R6::R6Class(
+loop = R6Class(
   inherit = stack,
   public = list(
     begin = function(item, name = "")
