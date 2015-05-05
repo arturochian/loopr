@@ -213,4 +213,4 @@ example %>%
 
 In general, `amend` is best suited to `summarize`/`do` (grouped) operations.
 
-This is only the tip of the iceberg. Do not feel limited to using amend and insert as ending functions. A whole host of others could be useful: join functions, merge functions, even setNames. Loops within loops are in fact quite possible. I would be cautious using them. It can be exhilarating, but make sure to indent each loop carefully.
+This is only the tip of the iceberg. Do not feel limited to using `amend` and `insert` as ending functions. A whole host of others could be useful: join functions, merge functions, even setNames. Loops within loops are in fact quite possible. I would be cautious using them. It can be exhilarating, but make sure to indent each loop carefully.
