@@ -16,7 +16,7 @@ Note: this tutorial assumes familiarity with Hadley Wickham's `dplyr` and `magri
 
 ##Set-up
 
-Import useful libraries for chaining, and of course, `loopr`.
+Import useful libraries for chaining, `knitr` for table output, and of course, `loopr`.
 ```{r, message=FALSE}
 library(loopr)
 library(dplyr)
@@ -24,6 +24,7 @@ library(magrittr)
 library(knitr)
 ```
 
+Define our loop object.
 ```{r}
 loop = loop$new()
 ```
@@ -80,22 +81,23 @@ stack$stack
 
 
 ##Loop
-Why is this important? A `loop` object inherits from a `stack`, and the `begin` method is simply a copy of `push`.
+Why is this important? A `loop` object inherits from `stack`.
+
+### Begin
+The `begin` method is simply a copy of `push`. After the loop begins, you can focus on any part of your data while still having access to the original data.
+
+### End
+To end the loop, you need to merge the data at the beginning of the loop with the data at the end. There are two ending methods defined in `loopr`: `end` and `cross`. Ending the loop takes a function, uses a `pop` from the `loop` `stack` as the first argument to the given function, and its own first argument (or chained argument) as the second.
 
 ```{r}
 "first" %>%
 loop$begin()
 
-loop$stack
-```
-
-There are two ways to end a loop. You can `end` the loop, or `cross` the loop. Ending the loop takes a function, and uses a `pop` from the `loop` `stack` as the first argument, and its own first argument (or chained argument) as the second.
-
-```{r}
 "second" %>%
   loop$end(paste)
 ```
 
+### Cross
 `cross` is nearly identical, but the order of the arguments gets reversed.
 
 ```{r}
@@ -114,9 +116,10 @@ end(endData, FUN, ...) = FUN(stack$pop, endData, ...)
 cross(crossData, FUN, ...) = FUN(crossData, stack$pop, ...)
 ```
 
-There are two useful ending functions that are included in this package:`insert` and `amend`. Why are special ending functions needed? In general, traditional join functions are not well suited to the amend work-flow. That is, focusing on a certain aspect of a data frame, making some changes, and then reincorporate these changes into the original data frame. We need `insert` and `amend` to prioritize the information in the amended data frame over the information in the original.
+## Ending functions
+There are two useful ending functions that are included in this package:`insert` and `amend`. Why are special ending functions needed? In general, traditional join functions are not well suited to the focus-modify-restore work-flow. We need `insert` and `amend` to prioritize information in modified data over information in the original data.
 
-##Insert
+### insert
 `insert` is the slightly more simple case. Let's use our example data again.
 
 Create a set of data to `insert`.
@@ -135,30 +138,10 @@ insert(example, insertData, by = "id")
 
 What happened? Where the `by` variables matched, `insert` excised all rows from `example` and inserted `insertData`. At the end, data was sorted by the `by` variable.
 
-Let's take a look at the slightly more complicated ending function: `amend`.
+### amend
+Let's take a look at the slightly more complicated ending function: `amend`. To understand amend, we first need to understand the underlying column update function.
 
-##Amend
-```{r}
-amendData = insertData
-
-amend(example, amendData, by = "id")
-```
-
-Now the `group` data didn't disappear! If it is not included, `by` defaults to the grouping variables in data.
-
-```{r}
-amendData = insertData
-
-example %<>% group_by(id)
-
-amend(example, amendData)
-```
-
-A warning: `amend` internally uses the suffix `"toFix"`. If this suffix is already used in your data, modify the `suffix` argument.
-
-`amend` is simply `dplyr::full_join` followed by `amendColumns` to merge non-key columns with matching names. In this case,   `group` from `amendData` overwrites `group` from `example`. How does `amendColumns` work?
-
-###amendColumns
+#### amendColumns
 `amendColumns` updates an old set of columns with all non-`NA` values from a matching new set of columns.
 
 ```{r}
@@ -178,6 +161,27 @@ data_frame(oldColumn, newColumn) %>%
   fillColumns("newColumn", "oldColumn")
 ```
 
+### amend
+`amend` is simply `dplyr::full_join` followed by `amendColumns` to over-write non-key columns from the original dataset with matching-named columns from the new dataset. In this case, `group` from `amendData` overwrites `group` from `example`.
+
+```{r}
+amendData = insertData
+
+amend(example, amendData, by = "id")
+```
+
+If it is not included, `by` defaults to the grouping variables in data.
+
+```{r}
+amendData = insertData
+
+example %<>% group_by(id)
+
+amend(example, amendData)
+```
+
+A warning: `amend` internally uses the suffix `"toFix"`. If this suffix is already used in your data, modify the `suffix` argument.
+
 ##Illustration
 Now that we understsand how it works, let's use use our `loop`!
 
@@ -187,30 +191,34 @@ Remind ourselves of what the `example` data looks like.
 kable(example)
 ```
 
-Conditional mutation:
+### Conditional mutation
 
+Here, we convert the toFix value in the first row from a 0 to a 1.
 ```{r}
 example %>%
   loop$begin() %>%
-    filter(toFix == 0) %>%
+    slice(1) %>%
     mutate(toFix = 1) %>%
   loop$end(insert, by = "id") %>%
   kable
 ```
 
-In general, `insert` is best suited to `filter`/`slice` (ungrouped) operations.
+In general, `insert` is best suited to `filter`/`slice` type operations.
 
-Merged `summarize`:
+### Merged summarize
+
+Here, we summarize toFix in each of the two groups, reverse the results, and then reintegrate the summaryrize into the original data.
 
 ```{r}
 example %>%
   group_by(group) %>%
   loop$begin() %>%
     summarize(toFix = mean(toFix)) %>%
+    mutate(group = rev(group)) %>%
   loop$end(amend) %>%
   kable
 ```
 
-In general, `amend` is best suited to `summarize`/`do` (grouped) operations.
+In general, `amend` is best suited to `summarize`/`do` type operations.
 
 This is only the tip of the iceberg. Do not feel limited to using `amend` and `insert` as ending functions. A whole host of others could be useful: join functions, merge functions, even setNames. Loops within loops are in fact quite possible. I would be cautious using them. It can be exhilarating, but make sure to indent each loop carefully.
