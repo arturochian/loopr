@@ -9,12 +9,15 @@ vignette: >
   \usepackage[utf8]{inputenc}
 ---
 
-#Looping
+# Looping
+
+## Introduction
 This package contains a flexible framework for extending the pipe into a loop. The basic idea is this: I often run into the problem of wanting to access an unnamed intermediate in a pipe. Why? A basic strategy of working with data frames is to focus on a certain aspect of the data frame, make some changes, and then reincorporate these changes into the original data frame. This work-flow is best understood through illustration.
 
-Note: this tutorial assumes familiarity with Hadley Wickham's `dplyr` and `magrittr` packages. If you don't know what I'm talking about, go look them up. Your life is about to get a whole lot easier.
+### Note
+This tutorial assumes familiarity with Hadley Wickham's `dplyr` and `magrittr` packages. If you don't know what I'm talking about, go look them up. Your life is about to get a whole lot easier
 
-##Set-up
+###Set-up
 
 Import useful libraries for chaining, `knitr` for table output, and of course, `loopr`.
 ```{r, message=FALSE}
@@ -38,9 +41,10 @@ example = data_frame(id, toFix, group)
 kable(example)
 ```
 
-`loopr` relies a stack framework.
-
 ## Stack
+
+`loopr` relies a stack framework. Let's initialize one.
+
 ```{r}
 stack = stack$new()
 ````
@@ -86,13 +90,15 @@ Why is this important? A `loop` object inherits from `stack`.
 ### Begin
 The `begin` method is simply a copy of `push`. After the loop begins, you can focus on any part of your data while still having access to the original data.
 
+```{r}
+"first" %>%
+loop$begin()
+```
+
 ### End
 To end the loop, you need to merge the data at the beginning of the loop with the data at the end. There are two ending methods defined in `loopr`: `end` and `cross`. Ending the loop takes a function, uses a `pop` from the `loop` `stack` as the first argument to the given function, and its own first argument (or chained argument) as the second.
 
 ```{r}
-"first" %>%
-loop$begin()
-
 "second" %>%
   loop$end(paste)
 ```
@@ -196,6 +202,7 @@ kable(example)
 Here, we convert the toFix value in the first row from a 0 to a 1.
 ```{r}
 example %>%
+  ungroup %>%
   loop$begin() %>%
     slice(1) %>%
     mutate(toFix = 1) %>%
@@ -207,7 +214,7 @@ In general, `insert` is best suited to `filter`/`slice` type operations.
 
 ### Merged summarize
 
-Here, we summarize toFix in each of the two groups, reverse the results, and then reintegrate the summaryrize into the original data.
+Here, we summarize toFix in each of the two groups, reverse the results, and then reintegrate the summary into the original data.
 
 ```{r}
 example %>%
