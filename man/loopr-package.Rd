@@ -3,6 +3,9 @@
 \alias{loopr}
 \docType{package}
 \title{
+Uses an Archive to Amend Previous Stages of a Pipe using Current Output
+}
+\description{
 Remedies a common problem in piping: not having access to
 intermediate outputs of the pipe. Within a "loop", a piping intermediate
 is  stored in a stack archive, data is processed, and then both the
@@ -13,9 +16,6 @@ functions, join functions, setNames, etc. This framework allows the
 following workflow: focus on a particular aspect or section of a
 dataset, conduct specific operations, and then reintegrate changes into
 the whole.
-}
-\description{
-This methodology allows programmers to focus on only one aspect of data, and reincorporate changes to the whole.
 }
 \details{
 \tabular{ll}{
