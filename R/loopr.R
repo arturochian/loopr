@@ -175,7 +175,7 @@ amend = function(data, amendData, by = NULL, suffix = "toFix") {
     
     amendData %>%
       dplyr::rename_(.dots = as.list(commonNames) %>% setNames(toFix)) %>%
-      dplyr::full_join(data, by) %>% 
+      dplyr::left_join(data, by) %>% 
       amendColumns(commonNames, toFix) %>%
       dplyr::arrange_(.dots = by)}}
 
