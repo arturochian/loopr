@@ -12,7 +12,7 @@ is  stored in a stack archive, data is processed, and then both the
 stored intermediate and the current output are reintegrated using an
 "ending" function. Two special ending functions are provided: amend and
 insert. However, any ending function can be specified, including merge
-functions, join functions, setNames, etc. This framework allows the
+functions, join functions, setNames(), etc. This framework allows the
 following workflow: focus on a particular aspect or section of a
 dataset, conduct specific operations, and then reintegrate changes into
 the whole.
