@@ -23,10 +23,10 @@
 #' \describe{
 #'   \item{\code{pop}}{This will return, but not remove, the last (most recent) item from the \code{stack}}}
 
-stack = R6Class(
-  "stack",
+stackClass = R6Class(
+  "stackClass",
   public = list(
-    stack = list("bottom" = NULL),
+    stack = list("bottom" = NA),
     push = function(item, name = "") {
       self$stack[[self$height + 1]] = item
       names(self$stack)[self$height] = name
@@ -51,22 +51,22 @@ stack = R6Class(
 #' @keywords data
 #' 
 #' @section Inherits:
-#' \describe{\item{\code{\link{stack}}}{}}
+#' \describe{\item{\code{\link{stackClass}}}{}}
 #' 
 #' @section Methods:
 #' \describe{\item{\code{
 #'   begin(item, name = "")}}{
-#'     Alias for \code{\link{stack}$push}}}
+#'     Alias for \code{\link{stackClass}$push}}}
 #' 
 #' \describe{\item{\code{
 #'   end(endData, FUN, ...)}}{
-#'     Will return \code{FUN(\link{stack}$pop, endData, ...)}}}
+#'     Will return \code{FUN(\link{stackClass}$pop, endData, ...)}}}
 #' 
 #' \describe{\item{\code{
 #'   cross(crossData, FUN, ...)}}{
-#'     Will return \code{FUN(crossData, \link{stack}$pop, ...)}}}
-loop = R6Class(
-  inherit = stack,
+#'     Will return \code{FUN(crossData, \link{stackClass}$pop, ...)}}}
+loopClass = R6Class(
+  inherit = stackClass,
   public = list(
     begin = function(item, name = "")
       self$push(item, name),
