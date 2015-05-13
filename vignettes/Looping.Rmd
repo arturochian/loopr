@@ -210,7 +210,7 @@ example %>%
 A warning: `amend` internally uses the suffix `"toFix"`. If this suffix is already used in your data, modify the `suffix` argument.
 
 ##Illustration
-Now that we understsand how it works, let's use use our `loop`!
+Now that we understand how it works, let's use use our `loop`!
 
 Remind ourselves of what the `example` data looks like.
 
@@ -220,7 +220,7 @@ kable(example)
 
 ### Conditional mutation
 
-Here, we convert the toFix value to a 0 when the group is 0.
+Here, we convert `toFix` to 0 when `group` is 0.
 ```{r}
 example %>%
   ungroup %>%
@@ -251,7 +251,7 @@ In general, `amend` is best suited to `summarize`/`do` type operations.
 
 This is only the tip of the iceberg. Do not feel limited to using `amend` and `insert` as ending functions. A whole host of others could be useful: join functions, merge functions, even setNames.
 
-###Suffixing
+### setNames
 
 Here, we will suffix the names of all the variables within the context of a chain.
 
@@ -263,8 +263,33 @@ example %>%
     paste0("Suffix") %>%
   loop$end(setNames) %>%
   kable
+```
 
+### bind_rows
+
+Here, we will double the data.
+
+```{r}
+example %>%
+  mutate(replication = 1) %>%
+  loop$begin() %>%
+    mutate(replication = 2) %>%
+  loop$end(bind_rows) %>%
+  kable
 ```
 
 ##Loops within loops
-Loops within loops are in fact quite possible. I would be cautious using them. It can be exhilarating, but make sure to indent each loop carefully. Also, it is a good idea to give a name to each loop. This allows one to quickly access `loop$stack` for debugging.
+Loops within loops are in fact quite possible. I would be cautious using them. It can be exhilarating, but make sure to indent each loop carefully. Also, it is a good idea to give a name to each loop. This allows one to interpret `loop$stack` for debugging. Here is a quick example that filters the data, replicates the columns, and then re-merges.
+
+```{r}
+example %>%
+  loop$begin(name = "original") %>%
+    filter(group == 1) %>%
+    loop$begin(name = "filtered") %>%
+       names %>%
+       paste0("Extra") %>%
+    loop$end(setNames) %>%
+    rename(id = idExtra) %>%
+  loop$end(amend, by = "id") %>%
+  kable
+```

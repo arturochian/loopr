@@ -13,7 +13,7 @@ Description: Remedies a common problem in piping: not having access to
     insert. However, any ending function can be specified, including merge
     functions, join functions, setNames(), etc. This framework allows the
     following workflow: focus on a particular aspect or section of a
-    dataset, conduct specific operations, and then reintegrate changes into
+    data set, conduct specific operations, and then reintegrate changes into
     the whole.
 Depends: R (>= 3.1.3)
 Imports: 

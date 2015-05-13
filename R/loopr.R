@@ -1,3 +1,5 @@
+globalVariables(".")
+
 #' An implementation of a stack
 #' 
 #' @docType class
