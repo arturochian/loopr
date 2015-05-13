@@ -148,7 +148,7 @@ insert(example, insertData, by = "id") %>%
   kable
 ```
 
-What happened? Where the `by` variables matched, `insert` excised all rows from `example` and inserted `insertData`. At the end, data was sorted by the `by` variable. The `by` variable must be included.
+What happened? Where the `by` variables matched, `insert` excised all rows from `example` and inserted `insertData`. At the end, data was sorted by the `by` variable. The `by` variable (or variables) must be included in the function call.
 
 ### amend
 Let's take a look at the slightly more complicated ending function: `amend`. To understand amend, we first need to understand the underlying column update function.
@@ -220,13 +220,13 @@ kable(example)
 
 ### Conditional mutation
 
-Here, we convert the toFix value in the first row from a 0 to a 1.
+Here, we convert the toFix value to a 0 when the group is 0.
 ```{r}
 example %>%
   ungroup %>%
   loop$begin() %>%
-    slice(1) %>%
-    mutate(toFix = 1) %>%
+    filter(group == 0) %>%
+    mutate(toFix = 0) %>%
   loop$end(insert, by = "id") %>%
   kable
 ```

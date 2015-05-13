@@ -103,7 +103,7 @@ amendColumns = function(data, originalNames, amendNames) {
   
   data %>% 
     dplyr::mutate_(.dots = calls) %>%
-    dplyr::select_(.dots = paste0("-", amendNames))}
+    dplyr::select_(.dots = sprintf("-`%s`", amendNames))}
 
 #' Fill variables with new information
 #' 
@@ -158,7 +158,8 @@ amend = function(data, amendData, by = NULL, suffix = "toFix") {
     dplyr::groups() %>% 
     lapply(deparse) %>% 
     unlist %>% 
-    as.vector
+    as.vector 
+  
   if (is.null(by)) stop("Defaulted to merging by data grouping variables. However, no grouping variables found")
   
   #figure out which columns need to be merged.
@@ -171,13 +172,18 @@ amend = function(data, amendData, by = NULL, suffix = "toFix") {
     
     #else update columns then join
     toFix = paste0(commonNames, suffix = suffix)
+    
     if (sum(toFix %in% names(amendData)) > 0) stop ("suffix conflict. Please choose another suffix.")
     
+    names(toFix) = commonNames
+    
+    byLiteral = by %>% sprintf("`%s`", .)
+    
     amendData %>%
-      dplyr::rename_(.dots = as.list(commonNames) %>% setNames(toFix)) %>%
+      plyr::rename(toFix) %>%
       dplyr::full_join(data, by) %>% 
-      amendColumns(commonNames, toFix) %>%
-      dplyr::arrange_(.dots = by)}}
+      amendColumns(commonNames, unname(toFix)) %>%
+      dplyr::arrange_(.dots = byLiteral)}}
 
 #' Insert new information into a dataframe.
 #' 
