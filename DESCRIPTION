@@ -2,7 +2,7 @@ Package: loopr
 Type: Package
 Title: Uses an Archive to Amend Previous Stages of a Pipe using Current Output
 Version: 1.0.1
-Date: 2015-05-07
+Date: 2015-05-27
 Author: Brandon Taylor
 Maintainer: Brandon Taylor <Brandon.Taylor221@gmail.com>
 Description: Remedies a common problem in piping: not having access to
